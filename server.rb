@@ -5,9 +5,9 @@ require 'em-mongo'
 
 #Not quite sure why this has to be a module, but w/e
 module JSONResponder
-    @@failed = JSON::generate({:response => 400})
-    @@vague_failure= JSON::generate({:response => 500})
-    @@success = JSON::generate({:response => 200})
+    @failed = JSON::generate({:response => 400})
+    @vague_failure= JSON::generate({:response => 500})
+    @success = JSON::generate({:response => 200})
 
     @parser = nil
 
@@ -30,11 +30,11 @@ module JSONResponder
         #Otherwise do some exception handling using regular HTTP error codes
         begin
             @parser.parse(data)
-            send_data @@success
+            send_data @success
         rescue Yajl::ParseError
-            send_data @@failed
+            send_data @failed
         rescue
-            send_data @@vague_failure
+            send_data @vague_failure
         end
     end
 
