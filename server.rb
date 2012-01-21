@@ -28,7 +28,10 @@ module JSONResponder
         #Otherwise do some exception handling using regular HTTP error codes
         begin
             @parser.parse(data)
+            puts ">>> Client sent: #{data}"
             send_data Success
+            puts ">>> Client got: #{Success}"
+            close_connection_after_writing
         rescue Yajl::ParseError
             send_data Failed
         rescue
