@@ -5,14 +5,13 @@ require 'em-mongo'
 
 #Not quite sure why this has to be a module, but w/e
 module JSONResponder
-    @failed = JSON::generate({:response => 400})
-    @vague_failure= JSON::generate({:response => 500})
-    @success = JSON::generate({:response => 200})
-
-    @parser = nil
+    Failed = JSON::generate({:response => 400})
+    Vague_failure= JSON::generate({:response => 500})
+    Success = JSON::generate({:response => 200})
 
     def post_init
         @parser = Yajl::Parser.new(:symbolize_keys => true)
+        @parser.on_parse_complete = method(:on_completed)
         puts "Client connected."
     end
 
@@ -21,7 +20,6 @@ module JSONResponder
     end
 
     def connection_completed
-        @parser.on_parse_complete = method(:on_completed)
     end
 
     #Method to determine what to do with the data
@@ -30,11 +28,11 @@ module JSONResponder
         #Otherwise do some exception handling using regular HTTP error codes
         begin
             @parser.parse(data)
-            send_data @success
+            send_data Success
         rescue Yajl::ParseError
-            send_data @failed
+            send_data Failed
         rescue
-            send_data @vague_failure
+            send_data Vague_failure
         end
     end
 
