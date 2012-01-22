@@ -11,6 +11,7 @@ public class JSONData {
 	static public String success = "{\"response\":200}";
 	static public String vagueFailure = "{\"response\":500}";
 	static public String serverUnavailable = "{\"response\":503}";
+	static public String responseField = "response";
 	
 	/***********************************************
 	 * Example of constructing a simple JSON object
@@ -26,5 +27,4 @@ public class JSONData {
 		}
 		return response.toString();
 	}
-
 }
