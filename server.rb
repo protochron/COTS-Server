@@ -42,7 +42,7 @@ module JSONResponder
     private
     #Method for Yajl to specify what to do when a parse is successful
     def on_completed(obj)
-        puts "Success!"
+        puts ">>> Successfully parsed JSON."
         #if obj.class == Hash
         #    @collection.insert(obj)
         #end
@@ -64,8 +64,8 @@ class COTServer
         EM.run do
             @db = EM::Mongo::Connection.new.db(@db_name)
             @collection = db.collection(@name) #Change this to be user specified
-            host = "127.0.0.1"
-            port = 8085
+            host = "0.0.0.0"
+            port = 8080
             EventMachine::start_server host, port, JSONResponder
             puts "Started server running on #{host}:#{port}"
         end
