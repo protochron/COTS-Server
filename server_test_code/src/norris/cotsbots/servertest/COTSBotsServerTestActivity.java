@@ -27,8 +27,6 @@ public class COTSBotsServerTestActivity extends Activity implements
 		sendDataButton.setOnClickListener(this);
 	}
 
-	
-
 	/**************************************
 	 * onClick handler for this activity.
 	 *************************************/
@@ -36,7 +34,7 @@ public class COTSBotsServerTestActivity extends Activity implements
 	public void onClick(View v) {
 		if (v == sendDataButton) {
 			new JSONTask(this).execute(JSONData.helloJSON());
-			
+
 		}
 	}
 }
