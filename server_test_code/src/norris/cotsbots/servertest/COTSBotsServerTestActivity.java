@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -19,12 +20,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-/**
+/********************************************************************************
  * Connect to a socket, send a simple JSON object and report the server response
  * 
- * @author Daniel Norris
- * 
- */
+ * @author Daniel Norris 
+ *********************************************************************************/
 public class COTSBotsServerTestActivity extends Activity implements
 		OnClickListener {
 
@@ -41,16 +41,19 @@ public class COTSBotsServerTestActivity extends Activity implements
 		sendDataButton.setOnClickListener(this);
 	}
 
-	/****
+	/*************************************************************************
 	 * Sends a simple JSON object to the server and gets the server response.
-	 * @return Server response
-	 */
+	 * 
+	 * @return String response
+	 *************************************************************************/
 	public String sendTestJSON() {
-		
-		//The server address refers to localhost on the computer running the android emulator
-		//This should be changed once a suitable server is available.
-		String server = "10.0.2.2";
-		int port = 8085;
+
+		// The server address refers to localhost on the computer running the
+		// android emulator
+		// This should be changed once a suitable server is available.
+		// String server = "10.0.2.2";
+		String server = "daevaofshadow.dyndns.org";
+		int port = 8080;
 		String response = "";
 
 		try {
@@ -58,25 +61,22 @@ public class COTSBotsServerTestActivity extends Activity implements
 			if (socket.isConnected()) {
 				PrintWriter outStream = new PrintWriter(
 						socket.getOutputStream(), true);
-				
-				
-				outStream.println(JSONData.helloJSON());
-				outStream.flush();
-				
-				
 				BufferedReader inStream = new BufferedReader(
 						new InputStreamReader(socket.getInputStream()));
-				
+
+				outStream.println(JSONData.helloJSON());
+				outStream.flush();
 				response = inStream.readLine();
-				
+				Log.d(tag, "Reading response.");
+
 				outStream.close();
 				inStream.close();
 				socket.close();
 				return response;
-			}
+			} 
 			else
 				socket.close();
-				response = "Unable to connect";
+			response = "Unable to connect";
 
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -88,30 +88,37 @@ public class COTSBotsServerTestActivity extends Activity implements
 		return response;
 	}
 
+	/**************************************
+	 * onClick handler for this activity.
+	 *************************************/
 	@Override
 	public void onClick(View v) {
 		if (v == sendDataButton) {
 			Log.d(tag, "Trying to send some JSON");
 			String response = sendTestJSON();
 			Log.d(tag, "Response was: " + response);
-			
+
 			AlertDialog dialog = new AlertDialog.Builder(
 					COTSBotsServerTestActivity.this).create();
 			dialog.setTitle("Server Response");
-			dialog.setMessage(response);
+			try {
+				JSONObject converter = new JSONObject(response);
+				dialog.setMessage("Response: " + converter.getString("response"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				Log.e(tag, e.getMessage());
+				dialog.setMessage("Error parsing JSON");
+			}
 			
-			//Set what the button does
+			// Set what the button does
 			dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close",
 					new DialogInterface.OnClickListener() {
-
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
-
 						}
 					});
 			dialog.show();
 		}
 	}
-
 }
