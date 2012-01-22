@@ -23,7 +23,7 @@ import android.widget.Button;
 /********************************************************************************
  * Connect to a socket, send a simple JSON object and report the server response
  * 
- * @author Daniel Norris 
+ * @author Daniel Norris
  *********************************************************************************/
 public class COTSBotsServerTestActivity extends Activity implements
 		OnClickListener {
@@ -56,34 +56,36 @@ public class COTSBotsServerTestActivity extends Activity implements
 		int port = 8080;
 		String response = "";
 
+		// Easier to leave the work in the try block
 		try {
 			Socket socket = new Socket(server, port);
-			if (socket.isConnected()) {
-				PrintWriter outStream = new PrintWriter(
-						socket.getOutputStream(), true);
-				BufferedReader inStream = new BufferedReader(
-						new InputStreamReader(socket.getInputStream()));
+				PrintWriter outStream = new PrintWriter(socket.getOutputStream(),
+						true);
+				BufferedReader inStream = new BufferedReader(new InputStreamReader(
+						socket.getInputStream()));
 
 				outStream.println(JSONData.helloJSON());
 				outStream.flush();
-				response = inStream.readLine();
 				Log.d(tag, "Reading response.");
+				response = inStream.readLine();
+				if(response == null)
+					response = JSONData.serverUnavailable;
+				
 
+				// Cleanup
 				outStream.close();
 				inStream.close();
 				socket.close();
-				return response;
-			} 
-			else
-				socket.close();
-			response = "Unable to connect";
 
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-			response = "Unknown host.\n".concat(e.getMessage());
+			response = JSONData.serverUnavailable;
 		} catch (IOException e) {
 			e.printStackTrace();
-			response = "Could not connect\n".concat(e.getMessage());
+			response = JSONData.serverUnavailable;
+		} finally {
+			if (response.length() == 0)
+				response = JSONData.serverUnavailable;
 		}
 		return response;
 	}
@@ -103,13 +105,13 @@ public class COTSBotsServerTestActivity extends Activity implements
 			dialog.setTitle("Server Response");
 			try {
 				JSONObject converter = new JSONObject(response);
-				dialog.setMessage("Response: " + converter.getString("response"));
+				dialog.setMessage("Response: "
+						+ converter.getString("response"));
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				Log.e(tag, e.getMessage());
 				dialog.setMessage("Error parsing JSON");
 			}
-			
+
 			// Set what the button does
 			dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close",
 					new DialogInterface.OnClickListener() {
