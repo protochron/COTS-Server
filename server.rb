@@ -27,30 +27,32 @@ module JSONResponder
         #Parse and insert if successful
         #Otherwise do some exception handling using regular HTTP error codes
         begin
-            message = @parser.parse(data)
-            if message[:timestamp].match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
-                puts ">>> Client sent: #{data}"
-                send_data Success
-                puts ">>> Client got: #{Success}"
-            else
-                send_data Failed
-                puts ">>> Clinet got: #{Failed}"
-            end
-            close_connection_after_writing
+            @parser.parse(data)
         rescue Yajl::ParseError
+            puts ">>> Failed parsing"
             send_data Failed
-        rescue
+        rescue Exception => e
+            puts e.message
+            puts ">>> Failed parsing"
             send_data Vague_failure
         end
+        close_connection_after_writing
     end
 
     private
     #Method for Yajl to specify what to do when a parse is successful
     def on_completed(obj)
         puts ">>> Successfully parsed JSON."
-        #if obj.class == Hash
-        #    @collection.insert(obj)
-        #end
+        puts ">>> Client sent #{obj.inspect}"
+        if !obj[:timestamp].nil?
+            if obj[:timestamp].match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
+                send_data Success
+                puts ">>> Client got: #{Success}"
+            end
+        else
+            send_data Failed
+            puts ">>> Client got: #{Failed}"
+        end
     end
 end
 
@@ -62,7 +64,6 @@ class COTServer
         @name = coll_name
         @db_name = 'cotsbots'
     end
-
 
     def run
         #Run EventMachine and connect to Mongo
