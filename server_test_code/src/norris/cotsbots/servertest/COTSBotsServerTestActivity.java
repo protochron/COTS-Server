@@ -34,7 +34,6 @@ public class COTSBotsServerTestActivity extends Activity implements
 	public void onClick(View v) {
 		if (v == sendDataButton) {
 			new JSONTask(this).execute(JSONData.helloJSON());
-
 		}
 	}
 }

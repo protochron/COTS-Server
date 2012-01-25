@@ -1,5 +1,8 @@
 package norris.cotsbots.servertest;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,8 +24,9 @@ public class JSONData {
 	static public String helloJSON() {
 		JSONObject response = new JSONObject();
 		try {
-			response = new JSONObject().put("message",
-					"This is just a simple JSON object.");
+			Timestamp stamp = new Timestamp(Calendar.getInstance()
+					.getTimeInMillis());
+			response = new JSONObject().put("timestamp", stamp.toString());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
