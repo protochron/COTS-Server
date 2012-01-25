@@ -3,7 +3,7 @@ require 'yajl'
 require 'eventmachine'
 require 'em-mongo'
 
-#Not quite sure why this has to be a module, but w/e
+#Encapsulates all of the methods for the server
 module JSONResponder
     Failed = JSON::generate({:response => 400})
     Vague_failure= JSON::generate({:response => 500})
@@ -27,10 +27,15 @@ module JSONResponder
         #Parse and insert if successful
         #Otherwise do some exception handling using regular HTTP error codes
         begin
-            @parser.parse(data)
-            puts ">>> Client sent: #{data}"
-            send_data Success
-            puts ">>> Client got: #{Success}"
+            message = @parser.parse(data)
+            if message[:timestamp].match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
+                puts ">>> Client sent: #{data}"
+                send_data Success
+                puts ">>> Client got: #{Success}"
+            else
+                send_data Failed
+                puts ">>> Clinet got: #{Failed}"
+            end
             close_connection_after_writing
         rescue Yajl::ParseError
             send_data Failed
