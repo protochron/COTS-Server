@@ -21,12 +21,13 @@ public class JSONData {
 	 * 
 	 * @return String response
 	 ***********************************************/
-	static public String helloJSON() {
+	static public String helloJSON(String ip) {
 		JSONObject response = new JSONObject();
 		try {
 			Timestamp stamp = new Timestamp(Calendar.getInstance()
 					.getTimeInMillis());
 			response = new JSONObject().put("timestamp", stamp.toString());
+			response.put("ip", ip);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
