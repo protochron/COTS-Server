@@ -1,7 +1,8 @@
+require 'bundle/install'
 require 'json'
 require 'yajl'
 require 'eventmachine'
-require 'em-mongo'
+require 'optparser'
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -58,19 +59,18 @@ end
 
 #Server definition
 class COTServer
-    attr_accessor :db, :collection
+    attr_accessor :config
 
-    def initialize(coll_name)
+    def initialize(config_file)
         @name = coll_name
-        @db_name = 'cotsbots'
+        @config = config_file
+        @directives = Yaml.load(config_file)
     end
 
     def run
         #Run EventMachine and connect to Mongo
         EM.run do
-            @db = EM::Mongo::Connection.new.db(@db_name)
-            @collection = db.collection(@name) #Change this to be user specified
-            host = "0.0.0.0"
+            host = '0.0.0.0'
             port = 8080
             EventMachine::start_server host, port, JSONResponder
             puts "Started server running on #{host}:#{port}"
@@ -78,4 +78,19 @@ class COTServer
     end
 end
 
-COTServer.new('test_server').run
+# Parse cli options
+options = {}
+parser = OptionParser.new.do |opts|
+    opts.banner = ""
+
+    opts.on("-v", "--verbose", "Output full information") do |v|
+        options[:verbose] = v 
+    end
+end.parse!
+
+configuration = ARGV[0]
+if configuration.nil?
+    puts parser.banner
+    exit
+end
+COTServer.new(configuration).run

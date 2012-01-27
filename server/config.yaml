@@ -1,0 +1,7 @@
+# Sample configuration file for a project
+---
+# Define the names of gems that the server needs to require
+required_libs:
+    - em-mongo 
+
+required_files:
