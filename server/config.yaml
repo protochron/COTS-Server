@@ -1,7 +1,15 @@
 # Sample configuration file for a project
 ---
 # Define the names of gems that the server needs to require
+# These have to be gems that are included in the bundle otherwise they will not load
 required_libs:
     - em-mongo 
 
 required_files:
+
+# Are binary files being passed as Base64? Values are true or false
+binary_base64:
+    true
+
+# List any additional files to load here
+

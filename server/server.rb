@@ -65,6 +65,7 @@ class COTServer
     def initialize(config_file)
         @config = config_file
         @directives = symbolize_keys(Psych.load(File.read(config_file)))
+        puts @directives.inspect
     end
 
     def run
@@ -81,7 +82,7 @@ end
 # Parse cli options
 options = {}
 parser = OptionParser.new do |opts|
-    opts.banner = '' 
+    opts.banner = 'Usage: ruby server.rb [options] <filename>' 
 
     opts.on("-v", "--verbose", "Output full information") do |v|
         options[:verbose] = v 
@@ -94,4 +95,10 @@ if configuration.nil?
     puts parser.banner
     exit
 end
-COTServer.new(configuration).run 
+
+server = COTServer.new(configuration)
+server.directives[:required_libs].each do |lib|
+    puts ">>> Loading #{lib} gem" if options[:verbose]
+    require lib 
+end
+server.run
