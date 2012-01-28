@@ -1,8 +1,8 @@
-require 'bundle/install'
+require 'bundler/setup'
 require 'json'
 require 'yajl'
 require 'eventmachine'
-require 'optparser'
+require 'optparse'
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -62,9 +62,8 @@ class COTServer
     attr_accessor :config
 
     def initialize(config_file)
-        @name = coll_name
         @config = config_file
-        @directives = Yaml.load(config_file)
+        @directives = Psych.load(File.read(config_file))
     end
 
     def run
@@ -80,13 +79,14 @@ end
 
 # Parse cli options
 options = {}
-parser = OptionParser.new.do |opts|
-    opts.banner = ""
+parser = OptionParser.new do |opts|
+    opts.banner = '' 
 
     opts.on("-v", "--verbose", "Output full information") do |v|
         options[:verbose] = v 
     end
-end.parse!
+end
+parser.parse!
 
 configuration = ARGV[0]
 if configuration.nil?
