@@ -3,6 +3,7 @@ require 'json'
 require 'yajl'
 require 'eventmachine'
 require 'optparse'
+require_relative './lib/utilities'
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -59,11 +60,11 @@ end
 
 #Server definition
 class COTServer
-    attr_accessor :config
+    attr_accessor :config, :directives
 
     def initialize(config_file)
         @config = config_file
-        @directives = Psych.load(File.read(config_file))
+        @directives = symbolize_keys(Psych.load(File.read(config_file)))
     end
 
     def run
@@ -93,4 +94,4 @@ if configuration.nil?
     puts parser.banner
     exit
 end
-COTServer.new(configuration).run
+COTServer.new(configuration).run 
