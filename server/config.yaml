@@ -5,11 +5,18 @@
 required_libs:
     - em-mongo 
 
-required_files:
+# Define whether or not to use a logfile
+logfile: server.log 
+
+# Port the server should listen on. Android clients must connect to the same port.
+port: 8080
 
 # Are binary files being passed as Base64? Values are true or false
-binary_base64:
-    true
+binary_base64: true
 
-# List any additional files to load here
+# These fields determine if a client must send an id and timestamp with each message. Disabling either of these options disables the server validation.
+require_id: true
+require_timestamp: true
 
+# Uncomment the next line and list any additional files to load here
+#required_files:
