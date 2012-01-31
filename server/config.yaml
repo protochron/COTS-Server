@@ -19,4 +19,5 @@ require_id: true
 require_timestamp: true
 
 # Uncomment the next line and list any additional files to load here
-#required_files:
+required_files:
+    - ./lib/utilities

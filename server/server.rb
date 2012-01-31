@@ -118,6 +118,20 @@ class COTServer
         $options.update(@directives) #update our global options with the contents of the config file 
     end
 
+    def require_libs
+        @directives[:required_libs].each do |lib|
+            puts ">>> Loading #{lib} gem" if $options[:verbose]
+            require lib 
+        end
+    end
+
+    def require_files
+        @directives[:required_files].each do |f|
+            puts ">>> Loading #{f} " if $options[:verbose]
+            require_relative f
+        end
+    end
+
     # Run EventMachine server
     def run
         EM.run do
@@ -148,8 +162,6 @@ end
 
 # Setup and run server
 server = COTServer.new(configuration)
-server.directives[:required_libs].each do |lib|
-    puts ">>> Loading #{lib} gem" if $options[:verbose]
-    require lib 
-end
+server.require_libs
+server.require_files
 server.run
