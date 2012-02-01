@@ -1,4 +1,3 @@
-require 'singleton'
 require 'logger'
 
 # Create multiple Logger instances to print to stdout and/or a logfile
