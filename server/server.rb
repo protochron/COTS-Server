@@ -3,14 +3,18 @@ require 'bundler/setup'
 require 'json'
 require 'yajl'
 require 'eventmachine'
+require 'em-mongo'
 
 # Ruby libraries
 require 'optparse'
 require 'socket'
 require 'date'
+require 'base64'
 require_relative './lib/utilities'
+require_relative './lib/logger'
 
 $options = {} #hash to contain all options for running the server
+$logger = nil
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -23,19 +27,11 @@ module JSONResponder
 
         @parser = Yajl::Parser.new(:symbolize_keys => true)
         @parser.on_parse_complete = method(:on_completed)
-        puts ">>> #{ip} connected." if $options[:verbose]
-
-        if $options[:logfile]
-            $options[:fh].puts "#{Time.now}: #{ip} connected"
-        end
+        $logger.log("#{Time.now}: #{ip} connected on port #{port}", :info)
     end
 
     def unbind
-        puts "Client disconnected." if $options[:verbose]
-
-        if $options[:logfile]
-            $options[:fh].puts "#{Time.now}: Client disconnected"
-        end
+        $logger.log("#{Time.now}: Client disconnected", :info)
     end
 
     def connection_completed
@@ -48,20 +44,10 @@ module JSONResponder
         begin
             @parser.parse(data)
         rescue Yajl::ParseError
-            puts ">>> Failed parsing" if $options[:verbose]
-            if $options[:logfile]
-                $options[:fh].puts "#{Time.now}: Failed parsing JSON"            
-            end
+            $logger.log("Failed parsing JSON", :error)
             send_data Failed
         rescue Exception => e
-            if $options[:verbose]
-                puts e.message
-                puts ">>> Failed parsing"
-            end
-
-            if $options[:logfile]
-                $options[:fh].puts "#{Time.now}: #{e.message}"
-            end
+            $logger.log(e.message, :error)
             send_data Vague_failure
         end
         close_connection_after_writing
@@ -70,36 +56,18 @@ module JSONResponder
     private
     #Method for Yajl to specify what to do when a parse is successful
     def on_completed(obj)
-        puts ">>> Client sent #{obj.inspect}" if $options[:verbose]
-        if $options[:logfile]
-            $options[:fh].puts "#{Time.now}: Client sent #{obj.inspect}"
-        end
+        $logger.log("Client sent #{obj.inspect}", :info)
 
         if validate_timestamp(obj)
             send_data Success
-            puts ">>> Client got: #{Success}" if $options[:verbose]
-            if $options[:logfile]
-                $options[:fh].puts "#{Time.now}: Client got: #{Success}"
-            end
+            $logger.log("Client got: #{Success}", :info)
         else
             send_data Failed
-            puts ">>> Client got: #{Failed}" if $options[:verbose]
-            if $options[:logfile]
-                $options[:fh].puts "#{Time.now}: Client got: #{Failed}" 
-            end
+            $logger.log("Client got: #{Failed}", :info)
         end
 
     end
 
-    # Pattern-match a timestamp in default Android format
-    def validate_timestamp(obj)
-        if !obj[:timestamp].nil?
-            if obj[:timestamp].match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/)
-                return true
-            end
-        end
-        false
-    end
 end
 
 #Server definition
@@ -110,26 +78,8 @@ class COTServer
         @config = config_file
         @directives = symbolize_keys(Psych.load(File.read(config_file)))
         puts @directives.inspect if $options[:verbose]
-
-        if @directives[:logfile]
-            @directives[:fh] = File.open(@directives[:logfile], 'a')
-        end
-
         $options.update(@directives) #update our global options with the contents of the config file 
-    end
-
-    def require_libs
-        @directives[:required_libs].each do |lib|
-            puts ">>> Loading #{lib} gem" if $options[:verbose]
-            require lib 
-        end
-    end
-
-    def require_files
-        @directives[:required_files].each do |f|
-            puts ">>> Loading #{f} " if $options[:verbose]
-            require_relative f
-        end
+        $logger = COTSLogger.new($options[:logfile], Logger.class_eval($options[:log_level]), $options[:verbose])
     end
 
     # Run EventMachine server
@@ -162,6 +112,4 @@ end
 
 # Setup and run server
 server = COTServer.new(configuration)
-server.require_libs
-server.require_files
 server.run

@@ -12,3 +12,13 @@ def symbolize_keys(hash)
         result
     }
 end
+
+# Pattern-match a timestamp in default Android format
+def validate_timestamp(obj)
+    if !obj[:timestamp].nil?
+        if obj[:timestamp].match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/)
+            return true
+        end
+    end
+    false
+end

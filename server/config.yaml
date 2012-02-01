@@ -1,12 +1,10 @@
-# Sample configuration file for a project
+# Configuration file for a project
 ---
-# Define the names of gems that the server needs to require
-# These have to be gems that are included in the bundle otherwise they will not load
-required_libs:
-    - em-mongo 
-
 # Define whether or not to use a logfile
 logfile: server.log 
+
+# Set what logging level the logger should use. Valid values are: FATAL, ERROR, WARN, INFO and DEBUG.
+log_level: INFO
 
 # Port the server should listen on. Android clients must connect to the same port.
 port: 8080
@@ -19,5 +17,4 @@ require_id: true
 require_timestamp: true
 
 # Uncomment the next line and list any additional files to load here
-required_files:
-    - ./lib/utilities
+#required_files:
