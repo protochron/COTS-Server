@@ -12,8 +12,11 @@ require 'base64'
 require_relative './lib/utilities'
 require_relative './lib/logger'
 
+# Global server variables. Not the best design, but there's not a much better way to do it.
 $options = {} #hash to contain all options for running the server
 $logger = nil
+$db = nil
+$collection = nil
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -77,6 +80,8 @@ class COTServer
         @config = config_file
         @directives = symbolize_keys(Psych.load(File.read(config_file)))
         puts @directives.inspect if $options[:verbose]
+
+        #Configure globals
         $options.update(@directives) #update our global options with the contents of the config file 
         $logger = COTSLogger.new($options[:logfile], Logger.class_eval($options[:log_level]), $options[:verbose])
     end
@@ -87,7 +92,9 @@ class COTServer
             host = '0.0.0.0'
             port = @directives[:port]
             EventMachine::start_server host, port, JSONResponder
-            puts "Started server running on #{host}:#{port}"
+            $db = EM::Mongo::Connection.new('localhost').db('cotsbots')
+            $collection = $db.collection($options[:collection])
+            $logger.log("Started server running on #{host}:#{port}", :info)
         end
     end
 end

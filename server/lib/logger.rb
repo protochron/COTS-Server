@@ -6,7 +6,6 @@ class COTSLogger
     def initialize(file, severity, verbose)
         @log = Logger.new(file)
         @log.level = severity
-        puts "Created log with #{file}"
         
         if verbose
             @stdout = Logger.new(STDOUT)

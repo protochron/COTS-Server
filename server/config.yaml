@@ -16,5 +16,7 @@ binary_base64: true
 require_id: true
 require_timestamp: true
 
+collection: test
+
 # Uncomment the next line and list any additional files to load here
 #required_files:
