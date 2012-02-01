@@ -8,7 +8,6 @@ require 'em-mongo'
 # Ruby libraries
 require 'optparse'
 require 'socket'
-require 'date'
 require 'base64'
 require_relative './lib/utilities'
 require_relative './lib/logger'
@@ -27,11 +26,11 @@ module JSONResponder
 
         @parser = Yajl::Parser.new(:symbolize_keys => true)
         @parser.on_parse_complete = method(:on_completed)
-        $logger.log("#{Time.now}: #{ip} connected on port #{port}", :info)
+        $logger.log("#{ip} connected on port #{port}", :info)
     end
 
     def unbind
-        $logger.log("#{Time.now}: Client disconnected", :info)
+        $logger.log("Client disconnected", :info)
     end
 
     def connection_completed

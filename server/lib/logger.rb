@@ -20,8 +20,6 @@ class COTSLogger
             if !@stdout.nil?
                 @stdout.send severity, text
             end
-        else
-            puts "Bad severity level"
         end
     end
 end
