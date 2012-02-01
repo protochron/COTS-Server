@@ -1,5 +1,6 @@
-package norris.cotsbots.servertest;
+package edu.cotsbots.servertest;
 
+import norris.cotsbots.servertest.R;
 import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.WifiManager;
@@ -18,7 +19,8 @@ public class COTSBotsServerTestActivity extends Activity implements
 		OnClickListener {
 
 	Button sendDataButton;
-	public static String TAG = "COTS_SERVER";
+	Button insertDataButton;
+	public static String TAG = "COTS_SERVER"; //This should be changed for your individual project
 
 	/** Called when the activity is first created. */
 	@Override
@@ -28,6 +30,9 @@ public class COTSBotsServerTestActivity extends Activity implements
 
 		sendDataButton = (Button) findViewById(R.id.app_sendJSONButton);
 		sendDataButton.setOnClickListener(this);
+		
+		insertDataButton = (Button) findViewById(R.id.app_sendJSONButton);
+		insertDataButton.setOnClickListener(this);
 	}
 
 	/**************************************
@@ -36,8 +41,7 @@ public class COTSBotsServerTestActivity extends Activity implements
 	@Override
 	public void onClick(View v) {
 		if (v == sendDataButton) {
-			//ConnectivityManager conn = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			//conn.getActiveNetworkInfo().
+			//This part only works if it is using WiFi and not 3G
 			WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 			int ip = manager.getConnectionInfo().getIpAddress();
 			//Parse the integer representation into a string
@@ -47,6 +51,17 @@ public class COTSBotsServerTestActivity extends Activity implements
 					(ip >> 16 & 0xff),
 					(ip >> 24 & 0xff));
 			new JSONTask(this).execute(JSONData.helloJSON(ipAddr));
+		}
+		else if (v == insertDataButton) {
+			//This part only works if it is using WiFi and not 3G
+			WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+			int ip = manager.getConnectionInfo().getIpAddress();
+			//Parse the integer representation into a string
+			String ipAddr = String.format("%d.%d.%d.%d",
+					(ip & 0xff),
+					(ip >> 8 & 0xff),
+					(ip >> 16 & 0xff),
+					(ip >> 24 & 0xff));
 		}
 	}
 }

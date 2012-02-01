@@ -1,4 +1,4 @@
-package norris.cotsbots.servertest;
+package edu.cotsbots.servertest;
 
 import java.io.BufferedReader;
 import java.io.IOException;

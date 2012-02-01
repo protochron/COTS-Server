@@ -4,5 +4,6 @@
     <string name="hello">Hello World, COTSBotsServerTestActivity!</string>
     <string name="app_name">COTSBotsServerTest</string>
     <string name="buttonSend">Send Some JSON</string>
+    <string name="buttonInsert">Insert Data on Server</string>
 
 </resources>

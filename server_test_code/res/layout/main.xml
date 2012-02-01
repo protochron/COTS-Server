@@ -11,4 +11,10 @@
         android:layout_height="wrap_content"
         android:text="@string/buttonSend" />
 
+    <Button
+        android:id="@+id/app.insertData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonInsert" />
+
 </LinearLayout>
