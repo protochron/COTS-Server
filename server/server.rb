@@ -47,12 +47,12 @@ module JSONResponder
             @parser.parse(data)
         rescue Yajl::ParseError
             $logger.log("Failed parsing JSON", :error)
-            send_data Failed
+            send_data Failed + "\n"
         rescue Exception => e
             $logger.log(e.message, :error)
-            send_data Vague_failure
+            send_data Vague_failure + "\n"
         end
-        close_connection_after_writing
+        #close_connection_after_writing
     end
 
     private
@@ -61,10 +61,10 @@ module JSONResponder
         $logger.log("Client sent #{obj.inspect}", :info)
 
         if validate_timestamp(obj)
-            send_data Success
+            send_data Success + "\n"
             $logger.log("Client got: #{Success}", :info)
         else
-            send_data Failed
+            send_data Failed + "\n"
             $logger.log("Client got: #{Failed}", :info)
         end
 
@@ -95,6 +95,7 @@ class COTServer
             $db = EM::Mongo::Connection.new('localhost').db('cotsbots')
             $collection = $db.collection($options[:collection])
             $logger.log("Started server running on #{host}:#{port}", :info)
+            puts "Started server running on #{host}:#{port}"
         end
     end
 end
