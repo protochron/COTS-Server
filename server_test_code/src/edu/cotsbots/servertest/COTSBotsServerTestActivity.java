@@ -69,7 +69,7 @@ public class COTSBotsServerTestActivity extends Activity implements
 			byte[] imageArray = stream.toByteArray();
 			
 			data.insertBinary(imageArray, "jpg");
-			Log.d(TAG, data.toString());
+			//Log.d(TAG, data.toString());
 			
 			new JSONTask(this).execute(data.toString());
 			

@@ -29,6 +29,7 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 	private Activity baseActivity; // reference to the activity that called this
 									// task
 
+	private static String TAG = COTSBotsServerTestActivity.TAG;
 	// Constructor
 	public JSONTask(Activity a) {
 		baseActivity = a;
@@ -69,7 +70,7 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 			dialog.setMessage("Response: "
 					+ converter.getString(JSONData.responseField));
 		} catch (JSONException e) {
-			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
+			Log.e(TAG, e.getMessage());
 			dialog.setMessage("Error parsing JSON");
 		}
 
@@ -104,12 +105,12 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 		try {
 			Socket socket = new Socket(server, port);
 			PrintWriter outStream = new PrintWriter(socket.getOutputStream(),
-					true);
+					false);
 			BufferedReader inStream = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));
 
-			outStream.println(json);
-			//outStream.flush();
+			outStream.print(json);
+			outStream.flush();
 			Log.d(COTSBotsServerTestActivity.TAG, "Reading response.");
 			response = inStream.readLine();
 			if (response == null)
@@ -121,10 +122,10 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 			socket.close();
 
 		} catch (UnknownHostException e) {
-			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
+			Log.e(TAG, e.getMessage());
 			response = JSONData.serverUnavailable;
 		} catch (IOException e) {
-			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
+			Log.e(TAG, e.getMessage());
 			response = JSONData.serverUnavailable;
 		}
 		return response;
