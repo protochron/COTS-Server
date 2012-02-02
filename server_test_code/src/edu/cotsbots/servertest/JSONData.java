@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Base64;
 import android.util.Log;
 
 /********************************************************
@@ -26,13 +27,16 @@ public class JSONData {
 	static public String responseField = "response";
 
 	// Server directives and fields
-	static public String INSERT = "insert";
-	static public String TIMESTAMP = "timestamp";
-	static public String ID = "id"; 
-	
-	//JSON data to send
+	static private String INSERT = "insert";
+	static private String TIMESTAMP = "timestamp";
+	static private String ID = "id";
+	static private String DATA = "data";
+	static private String EXT = "ext";
+	static private String BINARY = "binary";
+
+	// JSON data to send
 	private JSONObject data;
-	
+
 	public JSONData(String ip) {
 		data = new JSONObject();
 		try {
@@ -42,23 +46,25 @@ public class JSONData {
 			data.put(ID, ip);
 		} catch (JSONException e) {
 			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
-		}	
+		}
 	}
-	
+
 	/******************************************************
-	 * Method to add data to insert on the server. 
-	 * This appends data to the insert field. 
+	 * Method to add data to insert on the server. This appends data to the
+	 * insert field.
+	 * 
 	 * @param dataToInsert
 	 * @param binary
 	 ******************************************************/
-	public void insert(String dataToInsert, boolean binary) {
-		if(data.has(INSERT)) {
-			try {
-				JSONObject obj = (JSONObject) data.get(INSERT);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				Log.e(COTSBotsServerTestActivity.TAG, "Failed to find insert" + e.getMessage());
-			}
+	public void insertBinary(byte[] dataToInsert, String extension) {
+		try {
+			JSONObject binary = new JSONObject().put(DATA,
+					Base64.encodeToString(dataToInsert, Base64.URL_SAFE));
+			binary.put(EXT, "jpg");
+			data.accumulate(BINARY, binary);
+		} catch (JSONException e) {
+			Log.e(COTSBotsServerTestActivity.TAG,
+					"Failed to find insert" + e.getMessage());
 		}
 	}
 
@@ -74,10 +80,19 @@ public class JSONData {
 			Timestamp stamp = new Timestamp(Calendar.getInstance()
 					.getTimeInMillis());
 			response = new JSONObject().put("timestamp", stamp.toString());
-			response.put("ip", ip);
+			response.put(ID, ip);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return response.toString();
+	}
+
+	/******************************************************
+	 * Return the string representation of the JSON object
+	 * 
+	 * @return String representation of JSON object.
+	 ******************************************************/
+	public String toString() {
+		return data.toString();
 	}
 }

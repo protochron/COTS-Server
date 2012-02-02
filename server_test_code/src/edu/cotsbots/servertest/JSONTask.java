@@ -95,8 +95,8 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 		// The server address refers to localhost on the computer running the
 		// android emulator
 		// This should be changed once a suitable server is available.
-		// String server = "10.0.2.2";
-		String server = "daevaofshadow.dyndns.org";
+		String server = "10.0.2.2";
+		//String server = "daevaofshadow.dyndns.org";
 		int port = 8080;
 		String response = "";
 
@@ -109,7 +109,7 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 					socket.getInputStream()));
 
 			outStream.println(json);
-			outStream.flush();
+			//outStream.flush();
 			Log.d(COTSBotsServerTestActivity.TAG, "Reading response.");
 			response = inStream.readLine();
 			if (response == null)
@@ -121,10 +121,10 @@ public class JSONTask extends AsyncTask<String, Void, String> {
 			socket.close();
 
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
 			response = JSONData.serverUnavailable;
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(COTSBotsServerTestActivity.TAG, e.getMessage());
 			response = JSONData.serverUnavailable;
 		}
 		return response;
