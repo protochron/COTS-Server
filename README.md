@@ -2,11 +2,14 @@ COTS Server
 ===========================
 
 Requires:
+-------------------------
+
     * Ruby 1.9.3
     * Bundler
 
-
 To Install:
+-----------------------
+
     * Install Ruby 1.9.3
     * Open up a terminal and type: gem install bundler (use sudo on some systems)
     * Clone this repository
