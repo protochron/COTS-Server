@@ -8,15 +8,14 @@ require 'em-mongo'
 # Ruby libraries
 require 'optparse'
 require 'socket'
-require 'base64'
 require_relative './lib/utilities'
 require_relative './lib/logger'
+require_relative './lib/db_handler'
 
 # Global server variables. Not the best design, but there's not a much better way to do it.
 $options = {} #hash to contain all options for running the server
 $logger = nil
-$db = nil
-$collection = nil
+$db_handler = nil
 
 #Encapsulates all of the methods for the server
 module JSONResponder
@@ -92,8 +91,7 @@ class COTServer
             host = '0.0.0.0'
             port = @directives[:port]
             EventMachine::start_server host, port, JSONResponder
-            $db = EM::Mongo::Connection.new('localhost').db('cotsbots')
-            $collection = $db.collection($options[:collection])
+            $db_handler = DatabaseHandler.new ($options[:collection])
             $logger.log("Started server running on #{host}:#{port}", :info)
             puts "Started server running on #{host}:#{port}"
         end
