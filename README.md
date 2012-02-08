@@ -1,6 +1,8 @@
 COTS Server
 ===========================
 
+A basic server implementation using EventMachine and MongoDB. This should allow people in the COTSBots class to quickly send and receive messages between Android-powered robots.
+
 Requires:
 -------------------------
 
