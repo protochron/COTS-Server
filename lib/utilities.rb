@@ -1,3 +1,4 @@
+# Convert hash keys from string to symbol
 def symbolize_keys(hash)
     hash.inject({}){|result, (key, value)|
         new_key = case key

@@ -12,6 +12,7 @@ class COTSLogger
         end
     end
 
+    # Insert an entry into the log
     def log(text, severity)
         if @log.respond_to?(severity)
             @log.send severity, text

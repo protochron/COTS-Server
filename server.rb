@@ -19,6 +19,8 @@ $db_handler = nil
 
 #Encapsulates all of the methods for the server
 module JSONResponder
+
+    #Constant hashes for server responses
     Failed = {:response => 400}
     Vague_failure= {:response => 500}
     Success = {:response => 200}
@@ -57,17 +59,25 @@ module JSONResponder
     private
     #Method for Yajl to specify what to do when a parse is successful
     def on_completed(obj)
-        $logger.log("Client sent #{obj.inspect}", :info)
+        #$logger.log("Client sent #{obj.inspect}", :info)
+
         if validate_timestamp(obj)
+            result = nil
+
+            #Execute specific methods. There's probably a more elegant way to do this...
             if obj.has_key? :find
-                result = $db_handler.exec(:find, obj[:find])
-                response = Success[:result] = result
-                puts response.inspect
-                send_data JSON::generate(response)
-            else
-                send_data JSON::generate(Success) + "\n"
-                $logger.log("Client got: #{Success}", :info)
+                result = $db_handler.find(obj[:find])
+            elsif obj.has_key? :find_one
+                result = $db_handler.find_one
+            elsif obj.has_key? :insert
+                result = $db_handler.insert(obj[:insert])
             end
+
+            # Construct and send a response
+            response = Success
+            response[:result] = result if !result.nil?
+            send_data JSON::generate(response) + "\n"
+            $logger.log("Client got: #{result}", :info)
         else
             send_data JSON::generate(Failed) + "\n"
             $logger.log("Client got: #{Failed}", :info)
@@ -79,6 +89,7 @@ end
 class COTServer
     attr_accessor :config, :directives
 
+    # Constructor
     def initialize(config_file)
         @config = config_file
         @directives = symbolize_keys(Psych.load(File.read(config_file)))
@@ -108,6 +119,10 @@ parser = OptionParser.new do |opts|
 
     opts.on("-v", "--verbose", "Output full information") do |v|
         $options[:verbose] = v 
+    end
+
+    opts.on("-d" "--[no]drop", "Drop the collection on start") do |d|
+        $options[:drop] = d
     end
 end
 parser.parse!
