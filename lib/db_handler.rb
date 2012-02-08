@@ -17,14 +17,12 @@ class DatabaseHandler
             resp = cursor.defer_as_a
             
             resp.callback do |docs|
+                return docs
             end
 
             resp.errback do |err|
                 $log.log(err, :error)
             end
-
-            return r
         end
     end
-
 end

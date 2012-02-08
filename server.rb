@@ -19,9 +19,9 @@ $db_handler = nil
 
 #Encapsulates all of the methods for the server
 module JSONResponder
-    Failed = JSON::generate({:response => 400})
-    Vague_failure= JSON::generate({:response => 500})
-    Success = JSON::generate({:response => 200})
+    Failed = {:response => 400}
+    Vague_failure= {:response => 500}
+    Success = {:response => 200}
 
     def post_init
         port, ip = Socket.unpack_sockaddr_in(get_peername)
@@ -46,10 +46,10 @@ module JSONResponder
             @parser.parse(data)
         rescue Yajl::ParseError
             $logger.log("Failed parsing JSON", :error)
-            send_data Failed + "\n"
+            send_data JSON::generate(Failed) + "\n"
         rescue Exception => e
             $logger.log(e.message, :error)
-            send_data Vague_failure + "\n"
+            send_data JSON::generate(Vague_failure) + "\n"
         end
         #close_connection_after_writing
     end
@@ -58,17 +58,21 @@ module JSONResponder
     #Method for Yajl to specify what to do when a parse is successful
     def on_completed(obj)
         $logger.log("Client sent #{obj.inspect}", :info)
-
         if validate_timestamp(obj)
-            send_data Success + "\n"
-            $logger.log("Client got: #{Success}", :info)
+            if obj.has_key? :find
+                result = $db_handler.exec(:find, obj[:find])
+                response = Success[:result] = result
+                puts response.inspect
+                send_data JSON::generate(response)
+            else
+                send_data JSON::generate(Success) + "\n"
+                $logger.log("Client got: #{Success}", :info)
+            end
         else
-            send_data Failed + "\n"
+            send_data JSON::generate(Failed) + "\n"
             $logger.log("Client got: #{Failed}", :info)
         end
-
     end
-
 end
 
 #Server definition
