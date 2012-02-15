@@ -8,7 +8,7 @@ Requires:
 
     * Ruby 1.9.3
     * Bundler
-    * [MongoDB](http://mongodb.org)
+    * MongoDB (http://mongodb.org)
 
 To Install:
 -----------------------
