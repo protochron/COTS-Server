@@ -10,6 +10,7 @@ class DatabaseHandler
     def initialize(coll)
         @db = EM::Mongo::Connection.new('localhost').db('cotsbots')
         @collection = @db.collection(coll)
+        @queue = @db.collection('message_queue')
     end
 
     # Query the database for multiple documents
@@ -58,7 +59,7 @@ class DatabaseHandler
     end
 
     # Insert a document.
-    # @return true or flass depending on success
+    # @return true or false depending on success
     def insert(data)
         cursor = @collection.safe_insert(data)
         result = true 
