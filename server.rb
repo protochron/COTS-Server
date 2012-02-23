@@ -78,7 +78,7 @@ module JSONResponder
             response = Success
             response[:result] = result if !result.nil?
             send_data JSON::generate(response) + "\n"
-            $logger.log("Client got: #{result}", :info)
+            $logger.log("Client got: #{response}", :info)
         else
             send_data JSON::generate(Failed) + "\n"
             $logger.log("Client got: #{Failed}", :info)
@@ -107,7 +107,7 @@ class COTServer
             host = '0.0.0.0'
             port = @directives[:port]
             EventMachine::start_server host, port, JSONResponder
-            $db_handler = DatabaseHandler.new ($options[:collection])
+            $db_handler = DatabaseHandler.new ($options[:database])
             $logger.log("Started server running on #{host}:#{port}", :info)
             puts "Started server running on #{host}:#{port}"
         end
