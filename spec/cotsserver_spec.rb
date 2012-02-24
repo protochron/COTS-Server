@@ -21,12 +21,12 @@ end
 
 # Begin tests
 describe COTServer do 
+    configuration = './spec/config.yaml'
+    server = COTServer.new(configuration)
+    host = '0.0.0.0'
+    port = server.directives[:port]
     it "validates basic JSON" do 
-        configuration = './spec/config.yaml'
-        server = COTServer.new(configuration)
         EM.run do
-            host = '0.0.0.0'
-            port = server.directives[:port]
             EventMachine::start_server host, port, JSONResponder
             $db_handler = DatabaseHandler.new ($options[:database])
             socket = EM.connect('0.0.0.0', server.directives[:port], SampleClient) 
