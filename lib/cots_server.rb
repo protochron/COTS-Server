@@ -1,4 +1,6 @@
-require_relative './jsonresponder'
+require 'yaml'
+require_relative 'jsonresponder'
+require_relative 'cotslogger'
 
 #Server definition
 class COTServer

@@ -6,9 +6,8 @@ require 'em-mongo'
 # Ruby libraries
 require 'optparse'
 require 'socket'
-require_relative './utilities'
-require_relative './logger'
-require_relative './db_handler'
+require_relative 'utilities'
+require_relative 'db_handler'
 
 # Global server variables. Not the best design, but there's not a much better way to do it.
 $options = {} #hash to contain all options for running the server

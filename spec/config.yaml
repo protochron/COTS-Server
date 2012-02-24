@@ -1,0 +1,23 @@
+# Configuration file for a project
+# This sets the default options for running the tests with the server
+---
+# Define whether or not to use a logfile
+logfile: test_server.log 
+
+# Set what logging level the logger should use. Valid values are: FATAL, ERROR, WARN, INFO and DEBUG.
+log_level: INFO
+
+# Port the server should listen on. Android clients must connect to the same port.
+port: 8080
+
+# Are binary files being passed as Base64? Values are true or false
+binary_base64: true
+
+# These fields determine if a client must send an id and timestamp with each message. Disabling either of these options disables the server validation.
+require_id: true
+require_timestamp: true
+
+database: test_suite
+
+# Uncomment the next line and list any additional files to load here
+#required_files:
