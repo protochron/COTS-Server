@@ -22,6 +22,14 @@ class SampleClient < EventMachine::Connection
     end
 end
 
+class InsertClient < SampleClient
+    Message = '{"insert":{"x":30, "y":40},"id":"0.0.0.0","timestamp":"2012-02-08 06:01:43.788"}'
+
+    def send
+        send_data Message
+    end
+end
+
 # Begin tests
 describe COTServer do 
     configuration = './spec/config.yaml'
@@ -29,6 +37,7 @@ describe COTServer do
     host = '0.0.0.0'
     port = server.directives[:port]
 
+    # Send a basic message to test JSON validation
     it "validates basic JSON" do 
         EM.run do
             EventMachine::start_server host, port, JSONResponder
@@ -36,6 +45,23 @@ describe COTServer do
             socket = EM.connect('0.0.0.0', server.directives[:port], SampleClient) 
             socket.ondata = -> {
                 socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
+                EM.stop
+            }
+            socket.send
+        end
+    end
+
+    it "inserts a document" do
+        EM.run do
+            EventMachine::start_server host, port, JSONResponder
+            $db_handler = DatabaseHandler.new ($options[:database])
+            socket = EM.connect('0.0.0.0', server.directives[:port], InsertClient) 
+            socket.ondata = -> {
+                socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
+                result = $db_handler.find_one
+                result.should == InsertClient::Message["insert"]
+
+                $db_handler.queue.drop
                 EM.stop
             }
             socket.send

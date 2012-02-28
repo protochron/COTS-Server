@@ -4,18 +4,29 @@ require 'base64'
 # Class to convert server directves into MongoDB commands
 class DatabaseHandler
 
-    attr_accessor :db, :collection
+    attr_accessor :db, :collections, :queue
 
     # Constructor
-    def initialize(coll)
-        @db = EM::Mongo::Connection.new('localhost').db('cotsbots')
-        @collection = @db.collection(coll)
+    def initialize(db)
+        @db = EM::Mongo::Connection.new('localhost').db(db)
+        #@collection = @db.collection(coll)
         @queue = @db.collection('message_queue')
+        @collections = {}
     end
 
-    # Query the database for multiple documents
-    def find(query)
-        cursor = @collection.find
+    # Query the message queue for multiple documents
+    # This assumes that the collection param comes in as a symbol
+    def find(query, collection=nil)
+        cursor = nil
+        if collection
+            if @collections.has_key? collection
+                cursor = @collections[collection]
+            else
+                return [] 
+            end
+        else
+            cursor = @queue.find
+        end
         resp = cursor.defer_as_a
         result = []
 
@@ -29,41 +40,54 @@ class DatabaseHandler
             $log.log(err, :error)
         end
 
-        @collection.find(query).each do |doc|
-            result << doc if doc
+        if collection
+            @collections[collection].find(query).each do |doc|
+                result << doc if doc
+            end
+        else
+            @queue.find(query).each do |doc|
+                result << doc if doc
+            end
         end
 
         result
     end
 
-    # Get a single document
+    # Get a single document from the queue
     def find_one
-        cursor = @collection.find_one
-        resp = cursor.defer_as_a
+        cursor = @queue.find_one
         result = []
 
         #Callback when query is successful
-        resp.callback do |docs|
-            $log.log("Found #{docs.length} results", :info)
+        cursor.callback do |docs|
+            result << docs if docs
         end
 
         #Log any error
-        resp.errback do |err|
+        cursor.errback do |err|
             $log.log(err, :error)
         end
 
-        @collection.find_one.each do |doc|
-            result << doc if doc
-        end
+        #@queue.find_one.each do |doc|
+        #    result << doc if doc
+        #end
         result
     end
 
     # Insert a document.
     # @return true or false depending on success
-    def insert(data)
-        cursor = @collection.safe_insert(data)
-        result = true 
+    def insert(data, collection=nil)
+        cursor = nil
+        if collection
+            if @collections[collection].nil?
+                @collections[collection] = @db.collection(collection.to_s)
+            end
+            cursor = @collections[collection].safe_insert(data)
+        else
+            cursor = @queue.safe_insert(data)
+        end
 
+        result = true 
 
         #Callback when query is successful
         cursor.callback do |docs|
@@ -75,7 +99,9 @@ class DatabaseHandler
             $log.log(err, :error)
             result = false
         end
+
         result
     end
 
-end
+
+end # end class
