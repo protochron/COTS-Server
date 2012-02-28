@@ -66,8 +66,12 @@ module JSONResponder
             elsif obj.has_key? :find_one
                 result = $db_handler.find_one
             elsif obj.has_key? :insert
-                #puts obj[:insert]
-                result = $db_handler.insert(obj[:insert])
+                if obj[:insert].has_key? :collection
+                    collection = obj[:insert].delete :collection # this returns the value
+                    result = $db_handler.insert(obj[:insert], collection)
+                else
+                    result = $db_handler.insert(obj[:insert])
+                end
             end
 
             # Construct and send a response
