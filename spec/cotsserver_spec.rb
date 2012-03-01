@@ -59,7 +59,7 @@ describe COTServer do
             socket.ondata = -> {
                 socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
                 result = $db_handler.find_one
-                result.should == InsertClient::Message["insert"]
+                result.should == '{"x":30, "y":40}' 
 
                 $db_handler.queue.drop
                 EM.stop
