@@ -1,7 +1,5 @@
 require 'json'
 require 'yajl'
-require 'eventmachine'
-require 'em-mongo'
 
 # Ruby libraries
 require 'optparse'
@@ -68,9 +66,9 @@ module JSONResponder
             elsif obj.has_key? :insert
                 if obj[:insert].has_key? :collection
                     collection = obj[:insert].delete :collection # this returns the value
-                    result = $db_handler.insert(obj[:insert], collection)
+                    $db_handler.insert(obj[:insert], collection)
                 else
-                    result = $db_handler.insert(obj[:insert])
+                    $db_handler.insert(obj[:insert])
                 end
             end
 

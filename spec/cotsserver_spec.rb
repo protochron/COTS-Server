@@ -1,5 +1,18 @@
-require 'em-mongo'
+require 'bundler/setup'
 require_relative '../lib/cots_server'
+
+#RSpec.configure do |config|
+#  # RSpec automatically cleans stuff out of backtraces;
+#  # sometimes this is annoying when trying to debug something e.g. a gem
+#  config.backtrace_clean_patterns = [
+#    /\/lib\d*\/ruby\//,
+#    /bin\//,
+#    #/gems/,
+#    /spec\/spec_helper\.rb/,
+#    /lib\/rspec\/(core|expectations|matchers|mocks)/
+#  ]
+#end
+
 
 class SampleClient < EventMachine::Connection
     attr_accessor :ondata, :data
@@ -39,32 +52,31 @@ describe COTServer do
 
     # Send a basic message to test JSON validation
     it "validates basic JSON" do 
-        EM.run do
+        EventMachine.synchrony do
             EventMachine::start_server host, port, JSONResponder
             $db_handler = DatabaseHandler.new ($options[:database])
             socket = EM.connect('0.0.0.0', server.directives[:port], SampleClient) 
             socket.ondata = -> {
                 socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
-                EM.stop
+                EventMachine.stop
             }
             socket.send
         end
     end
 
     it "inserts a document" do
-        EM.run do
+        EventMachine.synchrony do
             EventMachine::start_server host, port, JSONResponder
             $db_handler = DatabaseHandler.new ($options[:database])
-            socket = EM.connect('0.0.0.0', server.directives[:port], InsertClient) 
+            socket = EventMachine.connect('0.0.0.0', server.directives[:port], InsertClient) 
             socket.ondata = -> {
                 socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
-                result = $db_handler.find_one
-                result.should == '{"x":30, "y":40}' 
-
-                $db_handler.queue.drop
-                EM.stop
+                #result.should == '{"x":30, "y":40}' 
+                EventMachine.stop
             }
             socket.send
+            res = $db_handler.find_one
+            res.should == {"x" => 30, "y" => 40}
         end
     end
 end

@@ -1,4 +1,5 @@
-require 'em-mongo'
+require 'em-synchrony'
+require 'em-synchrony/em-mongo'
 require 'base64'
 
 # Class to convert server directves into MongoDB commands
@@ -9,68 +10,45 @@ class DatabaseHandler
     # Constructor
     def initialize(db)
         @db = EM::Mongo::Connection.new('localhost').db(db)
-        #@collection = @db.collection(coll)
         @queue = @db.collection('message_queue')
         @collections = {}
     end
 
     # Query the message queue for multiple documents
     # This assumes that the collection param comes in as a symbol
-    def find(query, collection=nil)
-        cursor = nil
-        if collection
-            if @collections.has_key? collection
-                cursor = @collections[collection]
-            else
-                return [] 
-            end
-        else
-            cursor = @queue.find
-        end
-        resp = cursor.defer_as_a
-        result = []
+    #def find(query, collection=nil)
+    #    cursor = nil
+    #    result = []
 
-        #Callback when query is successful
-        resp.callback do |docs|
-            $log.log("Found #{docs.length} results", :info)
-        end
+    #    if collection
+    #        if @collections.has_key? collection
+    #            cursor = @collections[collection].find(query)
+    #        else
+    #            return result
+    #        end
+    #    else
+    #        cursor = @queue.find(query)
+    #    end
 
-        # Log any error
-        resp.errback do |err|
-            $log.log(err, :error)
-        end
+    #    resp = cursor.defer_as_a
 
-        if collection
-            @collections[collection].find(query).each do |doc|
-                result << doc if doc
-            end
-        else
-            @queue.find(query).each do |doc|
-                result << doc if doc
-            end
-        end
+    #    resp.callback do |doc|
+    #        result << doc if doc
+    #    end
 
-        result
-    end
+    #    # Log any error
+    #    resp.errback do |err|
+    #        $log.log(err, :error)
+    #        raise *err
+    #    end
+
+    #    result
+    #end
 
     # Get a single document from the queue
     def find_one
-        cursor = @queue.find_one
-        result = []
-
-        #Callback when query is successful
-        cursor.callback do |docs|
-            result << docs if docs
-        end
-
-        #Log any error
-        cursor.errback do |err|
-            $log.log(err, :error)
-        end
-
-        #@queue.find_one.each do |doc|
-        #    result << doc if doc
-        #end
+        result = @queue.first
+        result.delete("_id")
         result
     end
 
@@ -90,9 +68,9 @@ class DatabaseHandler
         result = true 
 
         #Callback when query is successful
-        cursor.callback do |docs|
-            result = true
-        end
+        #cursor.callback do |doc|
+        #    result = true 
+        #end
 
         #Log any error
         cursor.errback do |err|
@@ -102,6 +80,5 @@ class DatabaseHandler
 
         result
     end
-
 
 end # end class
