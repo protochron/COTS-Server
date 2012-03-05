@@ -60,7 +60,12 @@ module JSONResponder
 
             #Execute specific methods. There's probably a more elegant way to do this...
             if obj.has_key? :find
-                result = $db_handler.find(obj[:find])
+                if obj[:find].has_key? :collection
+                    collection = obj[:find].delete :collection
+                    result = $db_handler.find(obj[:find], collection)
+                else
+                    result = $db_handler.find(obj[:find])
+                end
             elsif obj.has_key? :find_one
                 result = $db_handler.find_one
             elsif obj.has_key? :insert

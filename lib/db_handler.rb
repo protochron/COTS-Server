@@ -16,34 +16,20 @@ class DatabaseHandler
 
     # Query the message queue for multiple documents
     # This assumes that the collection param comes in as a symbol
-    #def find(query, collection=nil)
-    #    cursor = nil
-    #    result = []
+    def find(query, collection=nil)
+        result = []
 
-    #    if collection
-    #        if @collections.has_key? collection
-    #            cursor = @collections[collection].find(query)
-    #        else
-    #            return result
-    #        end
-    #    else
-    #        cursor = @queue.find(query)
-    #    end
-
-    #    resp = cursor.defer_as_a
-
-    #    resp.callback do |doc|
-    #        result << doc if doc
-    #    end
-
-    #    # Log any error
-    #    resp.errback do |err|
-    #        $log.log(err, :error)
-    #        raise *err
-    #    end
-
-    #    result
-    #end
+        if collection
+            if @collections.has_key? collection
+                cursor = @collections[collection].find(query)
+            else
+                return result
+            end
+        else
+            cursor = @queue.find(query)
+        end
+        cursor
+    end
 
     # Get a single document from the queue
     def find_one
