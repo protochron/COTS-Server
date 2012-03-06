@@ -19,7 +19,7 @@ class COTServer
 
     # Run EventMachine server
     def run
-        EM.run do
+        EM.synchrony do
             host = '0.0.0.0'
             port = @directives[:port]
             EventMachine::start_server host, port, JSONResponder
