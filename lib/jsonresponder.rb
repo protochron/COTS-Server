@@ -42,9 +42,11 @@ module JSONResponder
             @parser.parse(data)
         rescue Yajl::ParseError
             $logger.log("Failed parsing JSON", :error)
+            puts e.backtrace.join("\n")
             send_data JSON::generate(Failed) + "\n"
         rescue Exception => e
             $logger.log(e.message, :error)
+            puts e.backtrace.join("\n")
             send_data JSON::generate(Vague_failure) + "\n"
         end
         #close_connection_after_writing
@@ -62,9 +64,9 @@ module JSONResponder
             if obj.has_key? :find
                 if obj[:find].has_key? :collection
                     collection = obj[:find].delete :collection
-                    result = $db_handler.find(obj[:find], collection)
+                    result = $db_handler.find(to_flat_hash(obj[:find]), collection)
                 else
-                    result = $db_handler.find(obj[:find])
+                    result = $db_handler.find(to_flat_hash(obj[:find]))
                 end
             elsif obj.has_key? :find_one
                 result = $db_handler.find_one

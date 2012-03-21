@@ -23,3 +23,13 @@ def validate_timestamp(obj)
     end
     false
 end
+
+# Take an array of seperate hashes and combine them
+def to_flat_hash(arr)
+    res = {}
+    arr.each do |i|
+        flat = i.flatten
+        res[flat.first] = flat[1]
+    end
+    res
+end

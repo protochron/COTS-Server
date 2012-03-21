@@ -17,13 +17,11 @@ class DatabaseHandler
     # Query the message queue for multiple documents
     # This assumes that the collection param comes in as a symbol
     def find(query, collection=nil)
-        result = []
+        cursor = nil
 
         if collection
             if @collections.has_key? collection
                 cursor = @collections[collection].find(query)
-            else
-                return result
             end
         else
             cursor = @queue.find(query)
@@ -41,27 +39,24 @@ class DatabaseHandler
     # Insert a document.
     # @return true or false depending on success
     def insert(data, collection=nil)
-        cursor = nil
+        result = nil
+
+        #if data.has_key? :binary
+        #    ext = data[:binary][:ext]
+        #    #bin = Base64.urlsafe_decode64(data[:binary][:data])
+        #    #File.open("test.#{ext}", 'wb') {|f|
+        #    #    f.write(bin)
+        #    #}
+        #    data.delete(:binary)
+        #end
+
         if collection
             if @collections[collection].nil?
                 @collections[collection] = @db.collection(collection.to_s)
             end
-            cursor = @collections[collection].safe_insert(data)
+            result = @collections[collection].safe_insert(data)
         else
-            cursor = @queue.safe_insert(data)
-        end
-
-        result = true 
-
-        #Callback when query is successful
-        #cursor.callback do |doc|
-        #    result = true 
-        #end
-
-        #Log any error
-        cursor.errback do |err|
-            $log.log(err, :error)
-            result = false
+            result = @queue.safe_insert(data)
         end
 
         result
