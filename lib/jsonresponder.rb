@@ -45,8 +45,8 @@ module JSONResponder
             puts e.backtrace.join("\n")
             send_data JSON::generate(Failed) + "\n"
         rescue Exception => e
-            $logger.log(e.message, :error)
-            puts e.backtrace.join("\n")
+            err = e.message + "\n" + e.backtrace.join("\n")
+            $logger.log(err, :error)
             send_data JSON::generate(Vague_failure) + "\n"
         end
         #close_connection_after_writing
@@ -62,11 +62,12 @@ module JSONResponder
 
             #Execute specific methods. There's probably a more elegant way to do this...
             if obj.has_key? :find
-                if obj[:find].has_key? :collection
-                    collection = obj[:find].delete :collection
-                    result = $db_handler.find(to_flat_hash(obj[:find]), collection)
+                flat = to_flat_hash(obj[:find])
+                if flat.has_key? :collection
+                    collection = flat.delete :collection
+                    result = $db_handler.find(flat, collection)
                 else
-                    result = $db_handler.find(to_flat_hash(obj[:find]))
+                    result = $db_handler.find(flat)
                 end
             elsif obj.has_key? :find_one
                 result = $db_handler.find_one

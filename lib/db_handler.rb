@@ -12,21 +12,25 @@ class DatabaseHandler
         @db = EM::Mongo::Connection.new('localhost').db(db)
         @queue = @db.collection('message_queue')
         @collections = {}
+        @found_queue = []
     end
 
     # Query the message queue for multiple documents
     # This assumes that the collection param comes in as a symbol
     def find(query, collection=nil)
-        cursor = nil
-
         if collection
-            if @collections.has_key? collection
-                cursor = @collections[collection].find(query)
+            if @collections.has_key collection
+                @collections[collection].find(query).defer_as_a.callback do |doc|
+                    @found_queue << doc
+                end
             end
         else
-            cursor = @queue.find(query)
+            @queue.afind({}) do |doc|
+            end
         end
-        cursor
+        result = @found_queue
+        @found_queue = nil
+        result
     end
 
     # Get a single document from the queue
@@ -40,15 +44,6 @@ class DatabaseHandler
     # @return true or false depending on success
     def insert(data, collection=nil)
         result = nil
-
-        #if data.has_key? :binary
-        #    ext = data[:binary][:ext]
-        #    #bin = Base64.urlsafe_decode64(data[:binary][:data])
-        #    #File.open("test.#{ext}", 'wb') {|f|
-        #    #    f.write(bin)
-        #    #}
-        #    data.delete(:binary)
-        #end
 
         if collection
             if @collections[collection].nil?
