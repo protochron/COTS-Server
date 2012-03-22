@@ -17,14 +17,19 @@ class DatabaseHandler
     # Query the message queue for multiple documents
     # This assumes that the collection param comes in as a symbol
     def find(query, collection=nil)
-        @queue.find(query)
+        result = nil
+        if collection and @collections[collection]
+            result = @collection[collection].find(query)
+        else
+            result = @queue.find(query)
+        end
+        result.each{ |doc| doc.delete("_id") }
     end
 
     # Get a single document from the queue
     def find_one
         result = @queue.first
         result.delete("_id")
-        result
     end
 
     # Insert a document.
