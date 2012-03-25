@@ -30,6 +30,7 @@ class DatabaseHandler
     def find_one
         result = @queue.first
         result.delete("_id")
+        result
     end
 
     # Insert a document.

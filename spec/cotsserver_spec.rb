@@ -43,6 +43,13 @@ class InsertClient < SampleClient
     end
 end
 
+class FindClient < SampleClient
+    Message = '{"find":{"x":30},"id":"0.0.0.0","timestamp":"2012-02-08 06:01:43.788"}'
+    def send
+        send_data Message
+    end
+end
+
 # Begin tests
 describe COTServer do 
     configuration = './spec/config.yaml'
@@ -71,12 +78,27 @@ describe COTServer do
             socket = EventMachine.connect('0.0.0.0', server.directives[:port], InsertClient) 
             socket.ondata = -> {
                 socket.data.last.chomp.should == JSON.generate(JSONResponder::Success)
-                #result.should == '{"x":30, "y":40}' 
                 EventMachine.stop
             }
             socket.send
             res = $db_handler.find_one
             res.should == {"x" => 30, "y" => 40}
+        end
+    end
+
+    it "finds a document" do
+        EventMachine.synchrony do
+            EventMachine::start_server host, port, JSONResponder
+            $db_handler = DatabaseHandler.new ($options[:database])
+            socket = EventMachine.connect('0.0.0.0', server.directives[:port], FindClient) 
+            socket.ondata = -> {
+                puts socket.data
+                response = Yajl::Parser.parse(socket.data.last, symbolize_keys: true)
+                response[:response].should == JSONResponder::Success[:response]
+                response[:result].first.should == {x:30, y:40}
+                EventMachine.stop
+            }
+            socket.send
         end
     end
 end
