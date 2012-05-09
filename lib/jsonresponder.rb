@@ -58,6 +58,12 @@ module JSONResponder
                         else
                             $db_handler.insert(obj[:insert])
                         end
+                    elsif obj.has_key? :update
+                      if obj[:update].has_key? :collection
+                        collection = obj[:update].delete :collection
+                        result = $db_handler.update(obj[:update], collection)
+                      else
+                        result = $db_handler.update(obj[:update])
                     end
                     # Construct and send a response
                     response = Success

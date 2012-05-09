@@ -16,6 +16,7 @@ binary_base64: true
 require_id: true
 require_timestamp: true
 
+# The name that should be used for the database
 database: test
 
 # Uncomment the next line and list any additional files to load here

@@ -33,6 +33,17 @@ class DatabaseHandler
         result
     end
 
+    # Update a document matching the query conditions
+    def update(data, collection = nil)
+      result = nil
+      if collection
+        result = @collections[collection].update({}, data)
+      else
+        result = @queue.update({}, data)
+      end
+      result
+    end
+
     # Insert a document.
     # @return true or false depending on success
     def insert(data, collection=nil)
@@ -46,8 +57,19 @@ class DatabaseHandler
         else
             result = @queue.safe_insert(data)
         end
-
         result
+    end
+
+    # Retrieve latest insert
+    # @return latest document from the collection
+    def find_last(collection = nil)
+        result = nil
+        if collection and @collections[collection]
+            result = @collection[collection].find().sort("_id", :desc)
+        else
+            result = @queue.find().sort("_id", :desc)
+        end
+        result.each{ |doc| doc.delete("_id") }
     end
 
 end # end class
