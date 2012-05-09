@@ -36,9 +36,6 @@ class DatabaseHandler
     # Update a document matching the query conditions
     def update(conditions, data, collection = nil)
       result = nil
-      puts conditions
-      puts data
-
       if collection
         result = @collections[collection].update(conditions, data, :upsert => true)
       else
