@@ -59,11 +59,14 @@ module JSONResponder
                             $db_handler.insert(obj[:insert])
                         end
                     elsif obj.has_key? :update
-                      if obj[:update].has_key? :collection
-                        collection = obj[:update].delete :collection
-                        result = $db_handler.update(obj[:update], collection)
-                      else
-                        result = $db_handler.update(obj[:update])
+                      update = obj.delete :update #remove from the rest of the hash (easier to work with)
+
+                      condition = update.shift[:condition]
+                      values = update.shift[:values]
+                      combined_hash = obj.merge values
+
+                      #TODO: Add logic to check for a particular collection
+                      result = $db_handler.update(condition, combined_hash)
                     end
                     # Construct and send a response
                     response = Success
@@ -75,7 +78,7 @@ module JSONResponder
                 send_data JSON::generate(Failed) + "\n"
                 $logger.log("Client got: #{Failed}", :info)
             end
-        rescue Yajl::ParseError
+        rescue Yajl::ParseError => e
             $logger.log("Failed parsing JSON", :error)
             puts e.backtrace.join("\n")
             send_data JSON::generate(Failed) + "\n"

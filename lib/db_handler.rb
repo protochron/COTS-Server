@@ -34,12 +34,15 @@ class DatabaseHandler
     end
 
     # Update a document matching the query conditions
-    def update(data, collection = nil)
+    def update(conditions, data, collection = nil)
       result = nil
+      puts conditions
+      puts data
+
       if collection
-        result = @collections[collection].update({}, data)
+        result = @collections[collection].update(conditions, data, :upsert => true)
       else
-        result = @queue.update({}, data)
+        result = @queue.update(conditions, data, {:upsert => true})
       end
       result
     end
